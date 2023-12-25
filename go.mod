@@ -1,10 +1,10 @@
 module socks5proxy
 
-go 1.19
+go 1.21.1
 
 require (
-	github.com/haochen1204/HCGOTools v1.0.2
 	github.com/urfave/cli v1.22.14
+	golang.org/x/net v0.19.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 

@@ -5,10 +5,11 @@ import (
 	"io"
 	"log"
 	"net"
+	"socks5proxy/proxy"
 	"time"
 )
 
-func ProxySocks(localPort string, Addrch chan string) {
+func ProxySocks(localPort string, Addrch chan proxy.Data) {
 	// 在本地监听指定端口
 	listener, err := net.Listen("tcp", ":"+localPort)
 	if err != nil {
@@ -17,14 +18,23 @@ func ProxySocks(localPort string, Addrch chan string) {
 	defer listener.Close()
 
 	var proxyAddr string = ""
-
+	loc, err := time.LoadLocation("Local")
+	mm, _ := time.ParseDuration("5s")
 	for {
 		// 从管道中接收值
 		select {
 		case proxyAddrFromChan := <-Addrch:
-			proxyAddr = proxyAddrFromChan
-		default:
-			// 如果管道中没有值，保持proxyAddr不变
+			now := time.Now()
+			now = now.Add(mm)
+			t, _ := time.ParseInLocation("2006-01-02 15:04:05", proxyAddrFromChan.ExpireTime, loc)
+			//log.Println(now, t)
+			//log.Println(now.Before(t))
+			if now.Before(t) {
+				proxyAddr = proxyAddrFromChan.Ip
+			} else {
+				//log.Println(proxyAddrFromChan.Ip + " 已过期!")
+				continue
+			}
 		}
 
 		if proxyAddr == "" {
@@ -35,6 +45,7 @@ func ProxySocks(localPort string, Addrch chan string) {
 
 		// 接受本地客户端连接
 		clientConn, err := listener.Accept()
+		err = clientConn.SetReadDeadline(time.Now().Add(60 * time.Second))
 		if err != nil {
 			log.Printf("接受客户端连接时发生错误: %v", err)
 			continue
@@ -51,6 +62,7 @@ func handleConnection(clientConn net.Conn, proxyAddr string) {
 
 	// 连接到 SOCKS5 代理服务器
 	proxyConn, err := net.Dial("tcp", proxyAddr)
+	err = clientConn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	if err != nil {
 		log.Printf("连接到 SOCKS5 代理服务器时发生错误: %v", err)
 		return

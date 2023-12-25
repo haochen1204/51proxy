@@ -7,9 +7,7 @@ import (
 )
 
 type Config struct {
-	Url51      string `yaml:"51url"`
-	FofaEmail  string `yaml:"fofaEmail"`
-	FofaApiKey string `yaml:"fofaApiKey"`
+	Url51 string `yaml:"51url"`
 }
 
 func ReadConfig() *Config {

@@ -9,18 +9,18 @@ import (
 )
 
 type Response struct {
-	Msg  string `json:"msg"`
-	Code int    `json:"code"`
-	Data []struct {
-		Ip string `json:"ip"`
-	} `json:"data"`
+	Msg     string `json:"msg"`
+	Code    int    `json:"code"`
+	Data    []Data `json:"data"`
 	Success string `json:"success"`
+}
+type Data struct {
+	ExpireTime string `json:"expireTime"`
+	Ip         string `json:"ip"`
 }
 
 // 从url获取代理服务器
-func Get51ProxyAddr(url string) string {
-	var targetAddr string
-
+func Get51ProxyAddr(url string, ch chan<- Data) {
 	response, err := http.Get(url)
 	if err != nil {
 		log.Printf("[-] 发送 HTTP GET 请求时发生错误：%v\n", err)
@@ -39,6 +39,7 @@ func Get51ProxyAddr(url string) string {
 	if err != nil {
 		log.Printf("[-] 解析 JSON 时发生错误：%v\n", err)
 	}
-	targetAddr = jsonresponse.Data[0].Ip
-	return targetAddr
+	for i := range jsonresponse.Data {
+		ch <- jsonresponse.Data[i]
+	}
 }
