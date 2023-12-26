@@ -58,7 +58,12 @@ func ProxySocks(localPort string, Addrch chan proxy.Data) {
 
 // 处理连接请求
 func handleConnection(clientConn net.Conn, proxyAddr string) {
-	defer clientConn.Close()
+	defer func(clientConn net.Conn) {
+		err := clientConn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(clientConn)
 
 	// 连接到 SOCKS5 代理服务器
 	proxyConn, err := net.Dial("tcp", proxyAddr)
@@ -67,7 +72,12 @@ func handleConnection(clientConn net.Conn, proxyAddr string) {
 		log.Printf("连接到 SOCKS5 代理服务器时发生错误: %v", err)
 		return
 	}
-	defer proxyConn.Close()
+	defer func(proxyConn net.Conn) {
+		err := proxyConn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(proxyConn)
 
 	// 用于传递错误信息的通道
 	var errCh = make(chan error, 1)
