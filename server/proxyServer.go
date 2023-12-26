@@ -62,6 +62,7 @@ func handleConnection(clientConn net.Conn, proxyAddr string) {
 		err := clientConn.Close()
 		if err != nil {
 			log.Println(err)
+			return
 		}
 	}(clientConn)
 
@@ -76,6 +77,7 @@ func handleConnection(clientConn net.Conn, proxyAddr string) {
 		err := proxyConn.Close()
 		if err != nil {
 			log.Println(err)
+			return
 		}
 	}(proxyConn)
 
