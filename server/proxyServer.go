@@ -39,7 +39,7 @@ func ProxySocks(localPort string, Addrch chan proxy.Data) {
 
 		// 接受本地客户端连接
 		clientConn, err := listener.Accept()
-		err = clientConn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		//err = clientConn.SetReadDeadline(time.Now().Add(60 * time.Second))
 		if err != nil {
 			log.Printf("接受客户端连接时发生错误: %v", err)
 			continue
