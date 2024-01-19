@@ -5,11 +5,11 @@ import (
 	"io"
 	"log"
 	"net"
-	"socks5proxy/proxy"
+	myproxy "socks5proxy/proxy"
 	"time"
 )
 
-func ProxySocks(localPort string, Addrch chan proxy.Data) {
+func ProxySocks(localPort string, Addrch chan myproxy.Data) {
 	// 在本地监听指定端口
 	listener, err := net.Listen("tcp", ":"+localPort)
 	if err != nil {
@@ -64,7 +64,7 @@ func handleConnection(clientConn net.Conn, proxyAddr string) {
 	defer proxyConn.Close()
 
 	// 用于传递错误信息的通道
-	var errCh = make(chan error, 1)
+	var errCh = make(chan error, 2)
 
 	// 从本地客户端到 SOCKS5 代理服务器的复制
 	go func() {
@@ -85,7 +85,5 @@ func handleConnection(clientConn net.Conn, proxyAddr string) {
 	}()
 
 	// 等待复制完成或发生错误
-	if err := <-errCh; err != nil {
-		log.Println(err)
-	}
+	<-errCh
 }

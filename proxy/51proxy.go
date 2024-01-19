@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 )
 
 type Response struct {
@@ -24,7 +23,6 @@ func Get51ProxyAddr(url string, ch chan<- Data) {
 	response, err := http.Get(url)
 	if err != nil {
 		log.Printf("[-] 发送 HTTP GET 请求时发生错误：%v\n", err)
-		os.Exit(1)
 	}
 	defer response.Body.Close()
 
@@ -32,7 +30,6 @@ func Get51ProxyAddr(url string, ch chan<- Data) {
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("[-] 读取响应体时发生错误：%v\n", err)
-		os.Exit(1)
 	}
 	var jsonresponse Response
 	err = json.Unmarshal(body, &jsonresponse)

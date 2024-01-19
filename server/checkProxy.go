@@ -28,5 +28,6 @@ func Check(proxy_Data myproxy.Data, Addrch chan myproxy.Data) {
 		if resp.StatusCode == 200 {
 			Addrch <- proxy_Data
 		}
+		defer resp.Body.Close()
 	}
 }
